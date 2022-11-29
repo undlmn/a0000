@@ -1,0 +1,21 @@
+{
+  "name": "a0000",
+  "version": "0.1.1",
+  "repository": "github:undlmn/a0000",
+  "keywords": [
+    "util",
+    "genkey",
+    "hash"
+  ],
+  "type": "module",
+  "exports": "./index.js",
+  "files": [
+    "*.js"
+  ],
+  "scripts": {
+    "test": "mocha"
+  },
+  "devDependencies": {
+    "mocha": "^10.1.0"
+  }
+}
