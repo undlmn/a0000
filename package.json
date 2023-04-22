@@ -1,7 +1,10 @@
 {
   "name": "a0000",
-  "version": "0.1.1",
+  "version": "1.0.0",
+  "author": "undlmn",
+  "license": "MIT",
   "repository": "github:undlmn/a0000",
+  "description": "simple and fast hash and pseudorandom key functions in a0000 format",
   "keywords": [
     "util",
     "genkey",
@@ -10,12 +13,12 @@
   "type": "module",
   "exports": "./index.js",
   "files": [
-    "*.js"
+    "index.js"
   ],
   "scripts": {
     "test": "mocha"
   },
   "devDependencies": {
-    "mocha": "^10.1.0"
+    "mocha": "^10.2.0"
   }
 }

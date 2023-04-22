@@ -1,89 +1,81 @@
-const q0000 = 43670016;
+const A = parseInt("a0000", 36);
+const Q = parseInt("q0000", 36);
+const H = (s) => {
+  let n = 5381;
+  for (let i = s.length; i--; n = (n * 33) ^ s.charCodeAt(i));
+  return n;
+};
 
-/**
- * Converts a number (modulo 43670016) into
- * a five-character string of lowercase letters and numbers
- * where the first character is always a letter.
- * (a0000-zzzzz)
- */
-export function a0000(num) {
-  num = Math.floor(num) % q0000;
-  if (isNaN(num)) {
-    num = 0;
-  } else if (num < 0) {
-    num += q0000;
+function a0000(n) {
+  if (!Number.isInteger(n)) {
+    throw TypeError("a0000 argument must be an integer");
   }
-  return (q0000 / 2.6 + num).toString(36);
+  return (A + (((n % Q) + Q) % Q)).toString(36);
 }
 
-/**
- * Generates a random key
- * as a five-character string of lowercase letters and numbers
- * where the first character is always a letter.
- * (a0000-zzzzz)
- */
+function toNumber(a) {
+  if (typeof a != "string" || !/^[a-z][\da-z]{4}$/.test(a)) {
+    throw TypeError("toNumber argument must be a string in `a0000` format");
+  }
+  return parseInt(a, 36) - A;
+}
+
+const keys = new Set();
+
 export function genKey() {
-  return a0000(Math.random() * q0000);
+  let key;
+  do {
+    key = a0000(Math.floor(Math.random() * Q));
+  } while (keys.has(key));
+  keys.add(key);
+  return key;
 }
 
-/**
- * Calculates the hash
- * as a five-character string of lowercase letters and numbers
- * where the first character is always a letter.
- * (a0000-zzzzz)
- */
-export function calcHash(str, shift = 0) {
-  str = String(str);
-  let num = 5381;
-  for (let i = str.length; i--; ) {
-    num = (num * 33) ^ str.charCodeAt(i);
+const cache = new Map();
+
+export function hash(...args) {
+  const s = JSON.stringify(args);
+  if (cache.has(s)) {
+    return cache.get(s);
   }
-  return a0000(num + shift);
+  const h = a0000(H(s));
+  cache.set(s, h);
+  return h;
 }
 
-/**
- * Returns a function that generates unique keys
- * as a five-character string of lowercase letters and numbers
- * where the first character is always a letter.
- * (a0000-zzzzz)
- */
-export function uniqueKeysPool() {
-  const keys = new Set();
+const cacheEC = new Map();
+const hashesEC = new Set();
 
-  return function uniqueKey() {
-    const key = genKey();
-    if (keys.has(key)) {
-      return uniqueKey();
-    }
-    keys.add(key);
-
-    return key;
-  };
+export function hashEC(...args) {
+  const s = JSON.stringify(args);
+  if (cacheEC.has(s)) {
+    return cacheEC.get(s);
+  }
+  const h = a0000(H(s));
+  if (hashesEC.has(h)) {
+    throw new Error("A hash collision has occurred");
+  }
+  cacheEC.set(s, h);
+  hashesEC.add(h);
+  return h;
 }
 
-/**
- * Returns a function that calculates unique hashes (shift collisions)
- * as a five-character string of lowercase letters and numbers
- * where the first character is always a letter.
- * (a0000-zzzzz)
- */
-export function uniqueHashPool() {
-  const cache = new Map();
-  const hashes = new Set();
+const cacheSC = new Map();
+const hashesSC = new Set();
 
-  return function uniqueHash(str) {
-    if (cache.has(str)) {
-      return cache.get(str);
-    }
-
-    let hash;
-    let shift = 0;
-    do {
-      hash = calcHash(str, shift++);
-    } while (hashes.has(hash));
-    cache.set(str, hash);
-    hashes.add(hash);
-
-    return hash;
-  };
+export function hashSC(...args) {
+  const s = JSON.stringify(args);
+  if (cacheSC.has(s)) {
+    return cacheSC.get(s);
+  }
+  let n = H(s);
+  let h;
+  do {
+    h = a0000(n++);
+  } while (hashesSC.has(h));
+  cacheSC.set(s, h);
+  hashesSC.add(h);
+  return h;
 }
+
+export default Object.assign(a0000, { toNumber, genKey, hash, hashEC, hashSC });

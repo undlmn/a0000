@@ -2,6 +2,10 @@ IMAGE_NAME=a0000
 
 build: rmi
 	docker build -t $(IMAGE_NAME) .
+	set -e ;\
+	 CONTAINER_ID=`docker create $(IMAGE_NAME)` ;\
+	 docker cp $${CONTAINER_ID}:/app/package-lock.json . ;\
+	 docker rm -v $${CONTAINER_ID}
 
 run:
 	docker run\
